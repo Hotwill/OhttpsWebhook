@@ -15,9 +15,10 @@ import (
 )
 
 var (
-	_ConfigPath string
-	_Debug      bool
-	_Service    bool
+	_ConfigPath  string
+	_Debug       bool
+	_Service     bool
+	NginxCommand string
 )
 
 func Setup() {
@@ -38,6 +39,7 @@ func _SetupFlag() {
 func _SetupConfig() {
 	conf := _ReadConfig()
 
+	NginxCommand = conf.Config.NginxCommand
 	if _Debug {
 		log.SetLevel(log.DebugLevel)
 		log.Debug("Enable debug mode!")
@@ -136,6 +138,7 @@ type _ConfigRoot struct {
 			Path  string `yaml:"path"`
 			Aging int64  `yaml:"aging"`
 		} `yaml:"logging"`
+		NginxCommand string `yaml:"nginx-command"`
 	} `yaml:"config"`
 
 	Targets []Target `yaml:"targets"`

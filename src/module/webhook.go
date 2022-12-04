@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 )
 
 func Setup() {
@@ -111,7 +112,7 @@ func _Process(data Ohttps) {
 			return
 		}
 	}
-	cmd := exec.Command("nginx", "-s", "reload")
+	cmd := exec.Command(strings.Split(config.NginxCommand, " ")[0], strings.Split(config.NginxCommand, " ")[1:]...)
 	err := cmd.Run()
 	if err != nil {
 		log.Warningf("nginx reload failed: %v", err)
@@ -123,6 +124,7 @@ func _Process(data Ohttps) {
 func _Backup(path string, flag string, domain string) error {
 	log.Infof("Backing up %s... (domain: %s)", flag, domain)
 	origin, err := os.OpenFile(path, os.O_RDWR, 0644)
+	defer origin.Close()
 	if err != nil {
 		if os.IsNotExist(err) {
 			log.Warningf("Target %s not found, create new one... (domain: %s)", flag, domain)
@@ -140,6 +142,7 @@ func _Backup(path string, flag string, domain string) error {
 		}
 	} else {
 		backup, err := os.OpenFile(path+".bak", os.O_WRONLY|os.O_CREATE, 0644)
+		defer backup.Close()
 		if err != nil {
 			log.Warningf("CertKey backup create failed (domain: %s): %v", domain, err)
 			return err
